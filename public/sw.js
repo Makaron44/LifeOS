@@ -1,10 +1,10 @@
 const CACHE_NAME = 'lifeos-v1'
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/src/main.jsx',
-  '/src/App.jsx',
-  '/src/index.css'
+  '/LifeOS/',
+  '/LifeOS/favicon.png',
+  '/LifeOS/manifest.json',
+  '/LifeOS/pwa-192x192.png',
+  '/LifeOS/pwa-512x512.png'
 ]
 
 self.addEventListener('install', (e) => {
