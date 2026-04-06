@@ -1,0 +1,96 @@
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-card {
+  display: flex;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.event-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light, #c7d2fe);
+}
+
+.event-date-indicator {
+  width: 6px;
+  flex-shrink: 0;
+}
+
+.event-info {
+  flex: 1;
+  padding: 1.25rem;
+}
+
+.event-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.event-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.event-description {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* Added for compatibility */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.event-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 1rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.event-card:hover .event-actions {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .event-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .event-actions {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .action-btn {
+    padding: 0.75rem;
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+  }
+}

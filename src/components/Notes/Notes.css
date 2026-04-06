@@ -1,0 +1,173 @@
+.notes-controls {
+  margin-bottom: 2.5rem;
+}
+
+.notes-search {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--bg-secondary);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  max-width: 400px;
+}
+
+.notes-search input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  width: 100%;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.note-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  min-height: 240px;
+  max-height: 400px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light, #c7d2fe);
+}
+
+.note-card.pinned {
+  border-color: var(--primary);
+  background: linear-gradient(to bottom right, var(--bg-secondary), var(--bg-tertiary));
+}
+
+.note-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.category-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--text-secondary);
+  background-color: var(--bg-tertiary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+}
+
+.pin-btn {
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+
+.pin-btn:hover {
+  transform: scale(1.1);
+}
+
+.note-body {
+  flex: 1;
+  cursor: pointer;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  line-clamp: 8;
+  -webkit-box-orient: vertical;
+}
+
+.note-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.note-excerpt {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.note-card-footer {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.area-badge {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.5rem;
+  background-color: color-mix(in srgb, var(--area-color), transparent 85%);
+  color: var(--area-color);
+  font-weight: 600;
+}
+
+.note-actions {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0.6; /* Visible by default for better UX */
+  transition: all 0.2s;
+}
+
+.note-card:hover .note-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.action-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--primary);
+}
+
+.action-btn.delete:hover {
+  color: var(--danger);
+}
+
+@media (max-width: 768px) {
+  .note-actions {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  .note-card {
+    min-height: auto;
+  }
+  
+  .action-btn {
+    padding: 0.75rem; /* Larger touch target */
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+  }
+}
