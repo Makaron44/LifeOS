@@ -2,7 +2,7 @@
   "name": "LifeOS - Twoje Centrum Dowodzenia",
   "short_name": "LifeOS",
   "description": "Profesjonalny system CMR jak Notion dla zwykłego człowieka.",
-  "start_url": "/",
+  "start_url": "/LifeOS/",
   "display": "standalone",
   "background_color": "#FAFBFE",
   "theme_color": "#6366F1",

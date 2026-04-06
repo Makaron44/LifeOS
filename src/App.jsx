@@ -22,7 +22,7 @@ function App() {
   }
 
   return (
-    <Router>
+    <Router basename="/LifeOS/">
       <Layout theme={theme} toggleTheme={toggleTheme}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
