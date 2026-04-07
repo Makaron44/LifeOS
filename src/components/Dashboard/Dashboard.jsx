@@ -222,7 +222,7 @@ export const Dashboard = () => {
           <div className="card-header">
             <div className="card-title">
               <CalendarIcon size={22} color="var(--secondary)" />
-              <span>Nadchodzące</span>
+              <span>Nadchodzące na 7 dni</span>
             </div>
           </div>
           <div className="week-preview">

@@ -174,17 +174,19 @@
 .mobile-nav {
   display: none !important;
   position: fixed;
-  bottom: 0px;
-  left: 0;
-  right: 0;
-  height: 75px; /* Lekko powiększony dla lepszego UX */
-  background: var(--glass-bg);
+  bottom: 24px;
+  left: 20px;
+  right: 20px;
+  height: 68px; 
+  background: rgba(10, 13, 24, 0.75); 
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  border-top: 1px solid var(--border);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.02) inset;
   justify-content: space-around;
   align-items: center;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding: 0 10px;
   z-index: 2000;
 }
 
