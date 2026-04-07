@@ -83,7 +83,7 @@ export const CalendarView = ({ events, areas, onEdit, onAdd }) => {
       </div>
 
       <div className="calendar-grid">
-        <div className="weekday">Pon</div>
+        <div className="weekday">Pn</div>
         <div className="weekday">Wt</div>
         <div className="weekday">Śr</div>
         <div className="weekday">Czw</div>

@@ -9,13 +9,17 @@ import {
   PlusCircle, 
   Lightbulb,
   Clock,
-  Check
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Layers
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import './Dashboard.css'
 
 export const Dashboard = () => {
   const [inboxText, setInboxText] = useState('')
+  const [isAreasVisible, setIsAreasVisible] = useState(true)
   
   const areas = useLiveQuery(() => db.areas.toArray())
   
@@ -202,33 +206,35 @@ export const Dashboard = () => {
 
         {/* Areas Section */}
         <section className="dashboard-card areas-grid-card">
-          <div className="card-header">
+          <div className="card-header" style={{ cursor: 'pointer' }} onClick={() => setIsAreasVisible(!isAreasVisible)}>
             <div className="card-title">
               <Layers size={20} color="var(--accent)" />
               <span>Twoje Obszary</span>
+              {isAreasVisible ? <ChevronUp size={16} color="var(--text-muted)" /> : <ChevronDown size={16} color="var(--text-muted)" />}
             </div>
-            <Link to="/areas" className="view-all">Zarządzaj</Link>
+            <Link to="/areas" className="view-all" onClick={(e) => e.stopPropagation()}>Zarządzaj</Link>
           </div>
-          <div className="areas-grid">
-            {areas?.map(area => (
-              <Link to={`/areas/${area.id}`} key={area.id} className="area-tile" style={{'--area-color': area.color}}>
-                <div className="area-icon">
-                  <div style={{width: 32, height: 32, borderRadius: '8px', backgroundColor: area.color + '20', color: area.color, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                    <div style={{width: 10, height: 10, borderRadius: '50%', backgroundColor: area.color}}></div>
+          
+          {isAreasVisible && (
+            <div className="areas-grid">
+              {areas?.map(area => (
+                <Link to={`/areas/${area.id}`} key={area.id} className="area-tile" style={{'--area-color': area.color}}>
+                  <div className="area-icon">
+                    <div style={{width: 32, height: 32, borderRadius: '8px', backgroundColor: area.color + '20', color: area.color, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                      <div style={{width: 10, height: 10, borderRadius: '50%', backgroundColor: area.color}}></div>
+                    </div>
                   </div>
-                </div>
-                <div className="area-info">
-                  <span className="area-name">{area.name}</span>
-                  <span className="area-stats">LifeOS Area</span>
-                </div>
-                <ChevronRight size={16} />
-              </Link>
-            ))}
-          </div>
+                  <div className="area-info">
+                    <span className="area-name">{area.name}</span>
+                    <span className="area-stats">LifeOS Area</span>
+                  </div>
+                  <ChevronRight size={16} />
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>
   )
 }
-
-import { Layers } from 'lucide-react'
