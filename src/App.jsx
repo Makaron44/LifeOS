@@ -9,16 +9,14 @@ import { AreasPage } from './components/Areas/AreasPage'
 import { AreaDetailPage } from './components/Areas/AreaDetailPage'
 import { SettingsPage } from './components/Settings/SettingsPage'
 
-function App() {
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { Login } from './components/Auth/Login'
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
-  }, [theme])
+const AppContent = ({ theme, toggleTheme }) => {
+  const { user } = useAuth()
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light')
+  if (!user) {
+    return <Login />
   }
 
   return (
@@ -35,6 +33,25 @@ function App() {
         </Routes>
       </Layout>
     </Router>
+  )
+}
+
+function App() {
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light')
+  }
+
+  return (
+    <AuthProvider>
+      <AppContent theme={theme} toggleTheme={toggleTheme} />
+    </AuthProvider>
   )
 }
 

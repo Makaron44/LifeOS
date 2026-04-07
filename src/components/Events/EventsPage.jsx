@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../../db/database'
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery'
+import { supabase } from '../../db/supabaseClient'
 import { Plus, Trash2, Edit3, Clock, LayoutList, Calendar as CalendarIcon } from 'lucide-react'
 import { EventModal } from './EventModal'
 import { CalendarView } from './CalendarView'
@@ -15,13 +15,12 @@ export const EventsPage = () => {
   const [viewType, setViewType] = useState('list') // 'list' or 'calendar'
   const [preSelectedDate, setPreSelectedDate] = useState(null)
 
-  const events = useLiveQuery(() => 
-    db.events.toArray().then(items => 
-      items.sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-    )
-  )
+  const allEvents = useSupabaseQuery('lifeos_events') || []
+  const events = React.useMemo(() => {
+    return [...allEvents].sort((a, b) => new Date(a.start_date || 0) - new Date(b.start_date || 0))
+  }, [allEvents])
 
-  const areas = useLiveQuery(() => db.areas.toArray())
+  const areas = useSupabaseQuery('lifeos_areas') || []
   const getArea = (id) => areas?.find(a => a.id === id)
 
   const handleDeleteClick = (id) => {
@@ -31,7 +30,7 @@ export const EventsPage = () => {
 
   const confirmDelete = async () => {
     if (eventToDelete) {
-      await db.events.delete(eventToDelete)
+      await supabase.from('lifeos_events').delete().eq('id', eventToDelete)
       setEventToDelete(null)
     }
   }
@@ -98,14 +97,14 @@ export const EventsPage = () => {
             </div>
           ) : (
             events.map(event => {
-              const area = getArea(event.areaId)
+              const area = getArea(event.area_id)
               return (
                 <div key={event.id} className="event-card">
                   <div className="event-date-indicator" style={{backgroundColor: area?.color || 'var(--primary)'}}></div>
                   <div className="event-info">
                     <span className="event-title">{event.title}</span>
                     <div className="event-meta">
-                      <span className="meta-item"><Clock size={14} /> {formatDateTime(event.startDate)}</span>
+                      <span className="meta-item"><Clock size={14} /> {formatDateTime(event.start_date)}</span>
                       {area && (
                         <span className="meta-item" style={{color: area.color}}>
                           <div style={{width: 8, height: 8, borderRadius: '50%', backgroundColor: area.color}}></div>

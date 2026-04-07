@@ -1,5 +1,5 @@
 import React from 'react'
-import { db } from '../../db/database'
+import { supabase } from '../../db/supabaseClient'
 import { Check, Edit3, Trash2 } from 'lucide-react'
 import './Kanban.css'
 
@@ -21,10 +21,7 @@ export const KanbanBoard = ({ tasks, onEdit, toggleStatus, onDelete }) => {
 
   const onDrop = async (e, newStatus) => {
     const taskId = parseInt(e.dataTransfer.getData('taskId'))
-    await db.tasks.update(taskId, { 
-      status: newStatus,
-      completedAt: newStatus === 'done' ? new Date() : null 
-    })
+    await supabase.from('lifeos_tasks').update({ status: newStatus }).eq('id', taskId)
   }
 
   return (
@@ -60,7 +57,7 @@ export const KanbanBoard = ({ tasks, onEdit, toggleStatus, onDelete }) => {
                 </div>
                 <p className="card-title">{task.title}</p>
                 <div className="card-bottom">
-                   <span className="card-date">{task.dueDate}</span>
+                   <span className="card-date">{task.due_date}</span>
                    {task.status !== 'done' && (
                      <button className="quick-check" onClick={() => toggleStatus(task.id, task.status)}>
                        <Check size={14} />

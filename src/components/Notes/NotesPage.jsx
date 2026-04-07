@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../../db/database'
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery'
+import { supabase } from '../../db/supabaseClient'
 import { Plus, Search, Trash2, Edit3, Pin, FileText, Book, Lightbulb, FileBox } from 'lucide-react'
 import { NoteModal } from './NoteModal'
 import { ConfirmModal } from '../shared/ConfirmModal'
@@ -13,23 +13,23 @@ export const NotesPage = () => {
   const [editingNote, setEditingNote] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
-  const notes = useLiveQuery(async () => {
-    let result = await db.notes.toArray();
+  const allNotes = useSupabaseQuery('lifeos_notes') || []
+  const notes = React.useMemo(() => {
+    let result = [...allNotes]
     if (searchQuery) {
       result = result.filter(n => 
-        n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        n.content.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+        (n.title && n.title.toLowerCase().includes(searchQuery.toLowerCase())) || 
+        (n.content && n.content.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
     }
-    // Sort by pinned first, then by date
     return result.sort((a, b) => {
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-      return new Date(b.updatedAt) - new Date(a.updatedAt);
-    });
-  }, [searchQuery])
+      if (a.is_pinned && !b.is_pinned) return -1
+      if (!a.is_pinned && b.is_pinned) return 1
+      return new Date(b.updated_at || 0) - new Date(a.updated_at || 0)
+    })
+  }, [allNotes, searchQuery])
 
-  const areas = useLiveQuery(() => db.areas.toArray())
+  const areas = useSupabaseQuery('lifeos_areas') || []
   const getArea = (id) => areas?.find(a => a.id === id)
 
   const handleDeleteClick = (id) => {
@@ -39,13 +39,13 @@ export const NotesPage = () => {
 
   const confirmDelete = async () => {
     if (noteToDelete) {
-      await db.notes.delete(noteToDelete)
+      await supabase.from('lifeos_notes').delete().eq('id', noteToDelete)
       setNoteToDelete(null)
     }
   }
 
   const togglePin = async (id, currentPinned) => {
-    await db.notes.update(id, { isPinned: !currentPinned })
+    await supabase.from('lifeos_notes').update({ is_pinned: !currentPinned }).eq('id', id)
   }
 
   const openEditModal = (note) => {
@@ -95,9 +95,9 @@ export const NotesPage = () => {
           </div>
         ) : (
           notes.map(note => {
-            const area = getArea(note.areaId)
+            const area = getArea(note.area_id)
             return (
-              <div key={note.id} className={`note-card ${note.isPinned ? 'pinned' : ''}`}>
+              <div key={note.id} className={`note-card ${note.is_pinned ? 'pinned' : ''}`}>
                 <div className="note-card-header">
                   <span className="category-tag">
                     {getCategoryIcon(note.category)}
@@ -105,10 +105,10 @@ export const NotesPage = () => {
                   </span>
                   <button 
                     className="pin-btn" 
-                    onClick={() => togglePin(note.id, note.isPinned)}
-                    title={note.isPinned ? 'Odepnij' : 'Przypnij'}
+                    onClick={() => togglePin(note.id, note.is_pinned)}
+                    title={note.is_pinned ? 'Odepnij' : 'Przypnij'}
                   >
-                    <Pin size={16} fill={note.isPinned ? 'var(--primary)' : 'none'} color={note.isPinned ? 'var(--primary)' : 'var(--text-muted)'} />
+                    <Pin size={16} fill={note.is_pinned ? 'var(--primary)' : 'none'} color={note.is_pinned ? 'var(--primary)' : 'var(--text-muted)'} />
                   </button>
                 </div>
                 

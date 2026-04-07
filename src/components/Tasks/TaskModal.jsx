@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { db } from '../../db/database'
+import { supabase } from '../../db/supabaseClient'
 import { X } from 'lucide-react'
-import { useLiveQuery } from 'dexie-react-hooks'
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery'
+import { useAuth } from '../../context/AuthContext'
 
 export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
-  const areas = useLiveQuery(() => db.areas.toArray())
+  const { user } = useAuth()
+  const areas = useSupabaseQuery('lifeos_areas')
   const [title, setTitle] = useState(taskToEdit?.title || '')
   const [priority, setPriority] = useState(taskToEdit?.priority || 'medium')
-  const [dueDate, setDueDate] = useState(taskToEdit?.dueDate || new Date().toISOString().split('T')[0])
-  const [areaId, setAreaId] = useState(taskToEdit?.areaId || '')
+  const [dueDate, setDueDate] = useState(taskToEdit?.due_date || new Date().toISOString().split('T')[0])
+  const [areaId, setAreaId] = useState(taskToEdit?.area_id || '')
   const [status, setStatus] = useState(taskToEdit?.status || 'todo')
 
   useEffect(() => {
@@ -16,8 +18,8 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
       document.body.style.overflow = 'hidden'
       setTitle(taskToEdit?.title || '')
       setPriority(taskToEdit?.priority || 'medium')
-      setDueDate(taskToEdit?.dueDate || new Date().toISOString().split('T')[0])
-      setAreaId(taskToEdit?.areaId || '')
+      setDueDate(taskToEdit?.due_date || new Date().toISOString().split('T')[0])
+      setAreaId(taskToEdit?.area_id || '')
       setStatus(taskToEdit?.status || 'todo')
     } else {
       document.body.style.overflow = 'unset'
@@ -29,19 +31,20 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!user) return
     const taskData = {
       title,
       priority,
-      dueDate,
-      areaId: areaId ? parseInt(areaId) : null,
+      due_date: dueDate,
+      area_id: areaId ? parseInt(areaId) : null,
       status,
-      updatedAt: new Date()
+      user_id: user.id
     }
 
     if (taskToEdit && taskToEdit.id) {
-      await db.tasks.update(taskToEdit.id, taskData)
+      await supabase.from('lifeos_tasks').update(taskData).eq('id', taskToEdit.id)
     } else {
-      await db.tasks.add({ ...taskData, createdAt: new Date() })
+      await supabase.from('lifeos_tasks').insert(taskData)
     }
     onClose()
   }
@@ -116,7 +119,7 @@ export const TaskModal = ({ isOpen, onClose, taskToEdit = null }) => {
                 onClick={async (e) => {
                   e.preventDefault();
                   if (window.confirm('Czy na pewno chcesz usunąć to zadanie?')) {
-                    await db.tasks.delete(taskToEdit.id);
+                    await supabase.from('lifeos_tasks').delete().eq('id', taskToEdit.id);
                     onClose();
                   }
                 }}

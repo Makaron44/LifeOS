@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { db } from '../../db/database'
+import { supabase } from '../../db/supabaseClient'
+import { useAuth } from '../../context/AuthContext'
 import { X, Layers } from 'lucide-react'
 
 export const AreaModal = ({ isOpen, onClose, areaToEdit = null }) => {
+  const { user } = useAuth()
   const [name, setName] = useState(areaToEdit?.name || '')
   const [color, setColor] = useState(areaToEdit?.color || '#6366F1')
   const [icon, setIcon] = useState(areaToEdit?.icon || 'Layers')
@@ -22,10 +24,11 @@ export const AreaModal = ({ isOpen, onClose, areaToEdit = null }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!user) return
     if (areaToEdit) {
-      await db.areas.update(areaToEdit.id, { name, color, icon })
+      await supabase.from('lifeos_areas').update({ name, color, icon }).eq('id', areaToEdit.id)
     } else {
-      await db.areas.add({ name, color, icon, createdAt: new Date() })
+      await supabase.from('lifeos_areas').insert({ name, color, icon, user_id: user.id })
     }
     onClose()
   }

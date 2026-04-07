@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../../db/database'
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery'
+import { supabase } from '../../db/supabaseClient'
+import { useAuth } from '../../context/AuthContext'
 import { 
   Plus, 
   Calendar as CalendarIcon, 
@@ -21,64 +22,56 @@ export const Dashboard = () => {
   const [inboxText, setInboxText] = useState('')
   const [isAreasVisible, setIsAreasVisible] = useState(true)
   
-  const areas = useLiveQuery(() => db.areas.toArray())
-  const allTasks = useLiveQuery(() => db.tasks.toArray()) || []
+  const { user } = useAuth()
+  const areas = useSupabaseQuery('lifeos_areas') || []
+  const allTasks = useSupabaseQuery('lifeos_tasks') || []
+  const allEvents = useSupabaseQuery('lifeos_events') || []
   
   const getTodayStr = () => {
-    // Returns YYYY-MM-DD in local time
     const d = new Date()
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   }
 
-  const todayTasks = useLiveQuery(async () => {
-    const today = getTodayStr()
-    return await db.tasks.where('dueDate').equals(today).and(t => t.status !== 'done').toArray()
-  })
+  const todayStr = getTodayStr()
+  
+  const todayTasks = allTasks.length ? allTasks.filter(t => t.due_date === todayStr && t.status !== 'done') : []
+  const todayDoneTasks = allTasks.length ? allTasks.filter(t => t.due_date === todayStr && t.status === 'done') : []
+  const todayEvents = allEvents.length ? allEvents.filter(e => e.start_date && e.start_date.startsWith(todayStr)) : []
 
-  const todayDoneTasks = useLiveQuery(async () => {
-    const today = getTodayStr()
-    return await db.tasks.where('dueDate').equals(today).and(t => t.status === 'done').toArray()
-  })
-
-  const todayEvents = useLiveQuery(async () => {
-    const today = getTodayStr()
-    return await db.events.filter(event => event.startDate.startsWith(today)).toArray()
-  })
-
-  // Get next 7 days tasks/events
-  const nextWeekItems = useLiveQuery(async () => {
+  const nextWeekItems = React.useMemo(() => {
+    if (!allTasks.length && !allEvents.length) return []
+    
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
     const nextWeek = new Date(today)
     nextWeek.setDate(today.getDate() + 7)
     
-    const todayStr = getTodayStr()
-    // Formatting nextWeekStr as YYYY-MM-DD local
     const nextWeekStr = `${nextWeek.getFullYear()}-${String(nextWeek.getMonth() + 1).padStart(2, '0')}-${String(nextWeek.getDate()).padStart(2, '0')}`
     
-    const tasks = await db.tasks.where('dueDate').between(todayStr, nextWeekStr, true, true).toArray()
-    const events = await db.events.filter(e => e.startDate >= todayStr && e.startDate <= nextWeekStr + 'T23:59:59').toArray()
+    const tasksNext = allTasks.filter(t => t.due_date >= todayStr && t.due_date <= nextWeekStr)
+    const eventsNext = allEvents.filter(e => e.start_date >= todayStr && e.start_date <= nextWeekStr + 'T23:59:59')
     
-    return [...tasks.map(t => ({...t, type: 'task'})), ...events.map(e => ({...e, type: 'event'}))]
-      .sort((a, b) => new Date(a.dueDate || a.startDate) - new Date(b.dueDate || b.startDate))
-  })
+    return [...tasksNext.map(t => ({...t, type: 'task'})), ...eventsNext.map(e => ({...e, type: 'event'}))]
+      .sort((a, b) => new Date(a.due_date || a.start_date) - new Date(b.due_date || b.start_date))
+  }, [allTasks, allEvents, todayStr])
 
   const handleInboxSubmit = async (e) => {
     if (e.key === 'Enter' && inboxText.trim()) {
-      await db.tasks.add({
+      if (!user) return;
+      await supabase.from('lifeos_tasks').insert({
         title: inboxText,
         status: 'inbox',
         priority: 'medium',
-        dueDate: getTodayStr(),
-        createdAt: new Date()
+        due_date: getTodayStr(),
+        user_id: user.id
       })
       setInboxText('')
     }
   }
 
   const toggleTask = async (id, currentStatus) => {
-    await db.tasks.update(id, { status: currentStatus === 'done' ? 'todo' : 'done' })
+    await supabase.from('lifeos_tasks').update({ status: currentStatus === 'done' ? 'todo' : 'done' }).eq('id', id)
   }
 
   const formatTime = (isoString) => {
@@ -133,7 +126,7 @@ export const Dashboard = () => {
                 <ul className="dashboard-list">
                   {todayEvents?.map(event => (
                     <li key={event.id} className="event-item">
-                      <div className="item-time"><Clock size={14} /> {formatTime(event.startDate)}</div>
+                      <div className="item-time"><Clock size={14} /> {formatTime(event.start_date)}</div>
                       <div className="item-details">
                         <span className="item-title">{event.title}</span>
                         <span className="item-type">Spotkanie</span>
@@ -195,7 +188,7 @@ export const Dashboard = () => {
                   <li key={item.id} className="compact-item">
                     <span className={`compact-type-indicator ${item.type}`}></span>
                     <span className="item-date">
-                      {new Date(item.dueDate || item.startDate).toLocaleDateString('pl-PL', {day: 'numeric', month: 'short'})}
+                      {new Date(item.due_date || item.start_date).toLocaleDateString('pl-PL', {day: 'numeric', month: 'short'})}
                     </span>
                     <span className="item-title">{item.title}</span>
                   </li>
@@ -228,7 +221,7 @@ export const Dashboard = () => {
                   <div className="area-info">
                     <span className="area-name">{area.name}</span>
                     <span className="area-stats">
-                      {allTasks.filter(t => t.areaId === area.id).length} zadań
+                      {allTasks.filter(t => t.area_id === area.id).length} zadań
                     </span>
                   </div>
                   <ChevronRight size={16} />

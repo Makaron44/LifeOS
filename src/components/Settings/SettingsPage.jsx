@@ -1,42 +1,16 @@
 import React, { useState } from 'react'
-import { exportData, importData } from '../../utils/exportImport'
-import { Download, Upload, Trash2, Database, ShieldAlert } from 'lucide-react'
-import { db } from '../../db/database'
+import { LogOut, Database, User } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../db/supabaseClient'
 
 export const SettingsPage = () => {
-  const [importStatus, setImportStatus] = useState('')
+  const { user, signOut } = useAuth()
 
-  const handleExport = async () => {
+  const handleLogout = async () => {
     try {
-      await exportData()
+      await signOut()
     } catch (err) {
-      alert('Błąd eksportu: ' + err.message)
-    }
-  }
-
-  const handleImport = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-
-    if (window.confirm('UWAGA: Import danych nadpisze Twoją aktualną bazę LifeOS. Czy na pewno chcesz kontynuować?')) {
-      setImportStatus('Importowanie...')
-      try {
-        await importData(file)
-        setImportStatus('Import zakończony sukcesem! Odśwież stronę.')
-        window.location.reload()
-      } catch (err) {
-        setImportStatus('Błąd importu: ' + err.message)
-      }
-    }
-  }
-
-  const clearData = async () => {
-    if (window.confirm('CZY NA PEWNO chcesz usunąć WSZYSTKIE dane? Tej operacji nie można cofnąć.')) {
-      await db.areas.clear()
-      await db.tasks.clear()
-      await db.events.clear()
-      await db.notes.clear()
-      window.location.reload()
+      alert('Błąd wylogowywania: ' + err.message)
     }
   }
 
@@ -49,39 +23,16 @@ export const SettingsPage = () => {
       <div className="settings-grid">
         <section className="settings-card">
           <div className="settings-card-header">
-            <Database size={24} color="var(--primary)" />
+            <User size={24} color="var(--primary)" />
             <div>
-              <h3>Zarządzanie danymi</h3>
-              <p>Eksportuj i importuj swoje dane w formacie JSON.</p>
+              <h3>Konto Supabase</h3>
+              <p>Jesteś zalogowany jako: <strong>{user?.email}</strong></p>
             </div>
           </div>
           
           <div className="settings-actions">
-            <button className="settings-btn" onClick={handleExport}>
-              <Download size={18} /> Eksportuj kopię (Backup)
-            </button>
-            <div className="file-input-wrapper">
-              <button className="settings-btn secondary">
-                <Upload size={18} /> Importuj z pliku
-              </button>
-              <input type="file" accept=".json" onChange={handleImport} />
-            </div>
-            {importStatus && <p className="status-msg">{importStatus}</p>}
-          </div>
-        </section>
-
-        <section className="settings-card danger">
-          <div className="settings-card-header">
-            <ShieldAlert size={24} color="var(--danger)" />
-            <div>
-              <h3>Strefa Niebezpieczeństwa</h3>
-              <p>Możesz trwale usunąć wszystkie swoje dane z urządzenia.</p>
-            </div>
-          </div>
-          
-          <div className="settings-actions">
-            <button className="settings-btn danger" onClick={clearData}>
-              <Trash2 size={18} /> Wyczyść wszystkie dane (Reset)
+            <button className="settings-btn secondary" style={{color: 'var(--danger)', borderColor: 'var(--danger)'}} onClick={handleLogout}>
+              <LogOut size={18} /> Wyloguj się
             </button>
           </div>
         </section>

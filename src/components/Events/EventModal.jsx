@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react'
-import { db } from '../../db/database'
+import { supabase } from '../../db/supabaseClient'
 import { X } from 'lucide-react'
-import { useLiveQuery } from 'dexie-react-hooks'
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery'
+import { useAuth } from '../../context/AuthContext'
 
 export const EventModal = ({ isOpen, onClose, eventToEdit = null }) => {
-  const areas = useLiveQuery(() => db.areas.toArray())
+  const { user } = useAuth()
+  const areas = useSupabaseQuery('lifeos_areas')
   const [title, setTitle] = useState(eventToEdit?.title || '')
-  const [startDate, setStartDate] = useState(eventToEdit?.startDate || new Date().toISOString().slice(0, 16))
-  const [endDate, setEndDate] = useState(eventToEdit?.endDate || new Date().toISOString().slice(0, 16))
-  const [areaId, setAreaId] = useState(eventToEdit?.areaId || '')
+  const [startDate, setStartDate] = useState(eventToEdit?.start_date || new Date().toISOString().slice(0, 16))
+  const [endDate, setEndDate] = useState(eventToEdit?.end_date || new Date().toISOString().slice(0, 16))
+  const [areaId, setAreaId] = useState(eventToEdit?.area_id || '')
   const [description, setDescription] = useState(eventToEdit?.description || '')
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
       setTitle(eventToEdit?.title || '')
-      setStartDate(eventToEdit?.startDate || new Date().toISOString().slice(0, 16))
-      setEndDate(eventToEdit?.endDate || new Date().toISOString().slice(0, 16))
-      setAreaId(eventToEdit?.areaId || '')
+      setStartDate(eventToEdit?.start_date || new Date().toISOString().slice(0, 16))
+      setEndDate(eventToEdit?.end_date || new Date().toISOString().slice(0, 16))
+      setAreaId(eventToEdit?.area_id || '')
       setDescription(eventToEdit?.description || '')
     } else {
       document.body.style.overflow = 'unset'
@@ -29,19 +31,20 @@ export const EventModal = ({ isOpen, onClose, eventToEdit = null }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!user) return
     const eventData = {
       title,
-      startDate,
-      endDate,
-      areaId: areaId ? parseInt(areaId) : null,
+      start_date: startDate,
+      end_date: endDate,
+      area_id: areaId ? parseInt(areaId) : null,
       description,
-      updatedAt: new Date()
+      user_id: user.id
     }
 
     if (eventToEdit && eventToEdit.id) {
-      await db.events.update(eventToEdit.id, eventData)
+      await supabase.from('lifeos_events').update(eventData).eq('id', eventToEdit.id)
     } else {
-      await db.events.add({ ...eventData, createdAt: new Date() })
+      await supabase.from('lifeos_events').insert(eventData)
     }
     onClose()
   }
@@ -114,7 +117,7 @@ export const EventModal = ({ isOpen, onClose, eventToEdit = null }) => {
                 onClick={async (e) => {
                   e.preventDefault();
                   if (window.confirm('Czy na pewno chcesz usunąć to wydarzenie?')) {
-                    await db.events.delete(eventToEdit.id);
+                    await supabase.from('lifeos_events').delete().eq('id', eventToEdit.id);
                     onClose();
                   }
                 }}

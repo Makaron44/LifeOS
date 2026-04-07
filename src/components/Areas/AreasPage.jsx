@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../../db/database'
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery'
 import { Layers, ChevronRight, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { AreaModal } from './AreaModal'
 import './Areas.css'
 
 export const AreasPage = () => {
-  const areas = useLiveQuery(() => db.areas.toArray())
+  const areas = useSupabaseQuery('lifeos_areas') || []
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (

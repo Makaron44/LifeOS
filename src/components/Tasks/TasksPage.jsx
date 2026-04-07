@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../../db/database'
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery'
+import { supabase } from '../../db/supabaseClient'
 import { 
   Plus, 
   Search, 
@@ -26,39 +26,34 @@ export const TasksPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [viewType, setViewType] = useState('list') // 'list' or 'kanban'
 
-  const tasks = useLiveQuery(async () => {
-    let collection;
+  const allTasks = useSupabaseQuery('lifeos_tasks') || []
+
+  const tasks = React.useMemo(() => {
+    let result = [...allTasks]
     
     if (filter === 'today') {
       const d = new Date()
       const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-      collection = db.tasks.where('dueDate').equals(today);
+      result = result.filter(t => t.due_date === today)
     } else if (filter === 'done') {
-      collection = db.tasks.where('status').equals('done');
+      result = result.filter(t => t.status === 'done')
     } else if (filter === 'pending') {
-      collection = db.tasks.where('status').notEqual('done');
-    } else {
-      collection = db.tasks.toCollection();
+      result = result.filter(t => t.status !== 'done')
     }
-    
-    let result = await collection.toArray();
     
     if (searchQuery) {
-      result = result.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
+      result = result.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()))
     }
-    
-    return result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }, [filter, searchQuery])
+    // Sort descending by created_at
+    return result.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+  }, [allTasks, filter, searchQuery])
 
-  const areas = useLiveQuery(() => db.areas.toArray())
+  const areas = useSupabaseQuery('lifeos_areas') || []
   const getAreaName = (id) => areas?.find(a => a.id === id)?.name || 'Brak obszaru'
 
   const toggleTaskStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'done' ? 'todo' : 'done'
-    await db.tasks.update(id, { 
-      status: newStatus, 
-      completedAt: newStatus === 'done' ? new Date() : null 
-    })
+    await supabase.from('lifeos_tasks').update({ status: newStatus }).eq('id', id)
   }
 
   const handleDeleteClick = (id) => {
@@ -68,7 +63,7 @@ export const TasksPage = () => {
 
   const confirmDelete = async () => {
     if (taskToDelete) {
-      await db.tasks.delete(taskToDelete)
+      await supabase.from('lifeos_tasks').delete().eq('id', taskToDelete)
       setTaskToDelete(null)
     }
   }
@@ -148,8 +143,8 @@ export const TasksPage = () => {
                 <div className="task-info">
                   <span className="task-title">{task.title}</span>
                   <div className="task-meta">
-                    <span className="meta-item"><Calendar size={12} /> {task.dueDate}</span>
-                    <span className="meta-item"><Filter size={12} /> {getAreaName(task.areaId)}</span>
+                    <span className="meta-item"><Calendar size={12} /> {task.due_date}</span>
+                    <span className="meta-item"><Filter size={12} /> {getAreaName(task.area_id)}</span>
                   </div>
                 </div>
 
@@ -166,7 +161,7 @@ export const TasksPage = () => {
           tasks={tasks} 
           onEdit={openEditModal} 
           toggleStatus={toggleTaskStatus} 
-          onDelete={deleteTask} 
+          onDelete={handleDeleteClick} 
         />
       )}
 

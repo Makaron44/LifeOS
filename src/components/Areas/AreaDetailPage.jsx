@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../../db/database'
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery'
 import { ChevronLeft, Plus, CheckCircle2, StickyNote, Calendar, X } from 'lucide-react'
 import { TaskModal } from '../Tasks/TaskModal'
 import { EventModal } from '../Events/EventModal'
@@ -11,10 +10,17 @@ export const AreaDetailPage = () => {
   const { id } = useParams()
   const areaIdInt = parseInt(id)
   
-  const area = useLiveQuery(() => db.areas.get(areaIdInt))
-  const tasks = useLiveQuery(() => db.tasks.where('areaId').equals(areaIdInt).toArray())
-  const notes = useLiveQuery(() => db.notes.where('areaId').equals(areaIdInt).toArray())
-  const events = useLiveQuery(() => db.events.where('areaId').equals(areaIdInt).toArray())
+  const allAreas = useSupabaseQuery('lifeos_areas') || []
+  const area = allAreas.find(a => a.id === areaIdInt)
+  
+  const allTasks = useSupabaseQuery('lifeos_tasks') || []
+  const tasks = allTasks.filter(t => t.area_id === areaIdInt)
+  
+  const allNotes = useSupabaseQuery('lifeos_notes') || []
+  const notes = allNotes.filter(n => n.area_id === areaIdInt)
+  
+  const allEvents = useSupabaseQuery('lifeos_events') || []
+  const events = allEvents.filter(e => e.area_id === areaIdInt)
 
   const [showAddMenu, setShowAddMenu] = useState(false)
   const [activeModal, setActiveModal] = useState(null) // 'task', 'event', 'note'
@@ -114,7 +120,7 @@ export const AreaDetailPage = () => {
               <ul className="area-list">
                 {events.map(event => (
                   <li key={event.id} className="area-item">
-                    <span className="item-date">{new Date(event.startDate).toLocaleDateString('pl-PL', {day: 'numeric', month: 'short'})}</span>
+                    <span className="item-date">{new Date(event.start_date || 0).toLocaleDateString('pl-PL', {day: 'numeric', month: 'short'})}</span>
                     <span className="item-title">{event.title}</span>
                   </li>
                 ))}

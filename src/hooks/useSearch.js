@@ -1,32 +1,32 @@
-import { useState, useMemo } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../db/database'
+import { useMemo } from 'react'
+import { useSupabaseQuery } from './useSupabaseQuery'
 
 export const useSearch = (query) => {
-  const tasks = useLiveQuery(() => 
-    db.tasks.toArray().then(items => 
-      items.filter(item => 
-        item.title.toLowerCase().includes(query.toLowerCase())
-      )
-    ), [query]
-  ) || []
+  const allTasks = useSupabaseQuery('lifeos_tasks') || []
+  const allEvents = useSupabaseQuery('lifeos_events') || []
+  const allNotes = useSupabaseQuery('lifeos_notes') || []
 
-  const events = useLiveQuery(() => 
-    db.events.toArray().then(items => 
-      items.filter(item => 
-        item.title.toLowerCase().includes(query.toLowerCase())
-      )
-    ), [query]
-  ) || []
+  const tasks = useMemo(() => {
+    if (!query) return []
+    return allTasks.filter(item => 
+      item.title?.toLowerCase().includes(query.toLowerCase())
+    )
+  }, [allTasks, query])
 
-  const notes = useLiveQuery(() => 
-    db.notes.toArray().then(items => 
-      items.filter(item => 
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.content.toLowerCase().includes(query.toLowerCase())
-      )
-    ), [query]
-  ) || []
+  const events = useMemo(() => {
+    if (!query) return []
+    return allEvents.filter(item => 
+      item.title?.toLowerCase().includes(query.toLowerCase())
+    )
+  }, [allEvents, query])
+
+  const notes = useMemo(() => {
+    if (!query) return []
+    return allNotes.filter(item => 
+      item.title?.toLowerCase().includes(query.toLowerCase()) ||
+      item.content?.toLowerCase().includes(query.toLowerCase())
+    )
+  }, [allNotes, query])
 
   return { tasks, events, notes }
 }

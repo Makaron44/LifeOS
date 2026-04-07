@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react'
-import { db } from '../../db/database'
+import { supabase } from '../../db/supabaseClient'
 import { X, Pin } from 'lucide-react'
-import { useLiveQuery } from 'dexie-react-hooks'
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery'
+import { useAuth } from '../../context/AuthContext'
 
 export const NoteModal = ({ isOpen, onClose, noteToEdit = null }) => {
-  const areas = useLiveQuery(() => db.areas.toArray())
+  const { user } = useAuth()
+  const areas = useSupabaseQuery('lifeos_areas')
   const [title, setTitle] = useState(noteToEdit?.title || '')
   const [content, setContent] = useState(noteToEdit?.content || '')
-  const [areaId, setAreaId] = useState(noteToEdit?.areaId || '')
+  const [areaId, setAreaId] = useState(noteToEdit?.area_id || '')
   const [category, setCategory] = useState(noteToEdit?.category || 'note')
-  const [isPinned, setIsPinned] = useState(noteToEdit?.isPinned || false)
+  const [isPinned, setIsPinned] = useState(noteToEdit?.is_pinned || false)
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
       setTitle(noteToEdit?.title || '')
       setContent(noteToEdit?.content || '')
-      setAreaId(noteToEdit?.areaId || '')
+      setAreaId(noteToEdit?.area_id || '')
       setCategory(noteToEdit?.category || 'note')
-      setIsPinned(noteToEdit?.isPinned || false)
+      setIsPinned(noteToEdit?.is_pinned || false)
     } else {
       document.body.style.overflow = 'unset'
     }
@@ -29,19 +31,21 @@ export const NoteModal = ({ isOpen, onClose, noteToEdit = null }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!user) return
     const noteData = {
       title,
       content,
-      areaId: areaId ? parseInt(areaId) : null,
+      area_id: areaId ? parseInt(areaId) : null,
       category,
-      isPinned,
-      updatedAt: new Date()
+      is_pinned: isPinned,
+      updated_at: new Date(),
+      user_id: user.id
     }
 
     if (noteToEdit && noteToEdit.id) {
-      await db.notes.update(noteToEdit.id, noteData)
+      await supabase.from('lifeos_notes').update(noteData).eq('id', noteToEdit.id)
     } else {
-      await db.notes.add({ ...noteData, createdAt: new Date() })
+      await supabase.from('lifeos_notes').insert(noteData)
     }
     onClose()
   }
@@ -116,7 +120,7 @@ export const NoteModal = ({ isOpen, onClose, noteToEdit = null }) => {
                 onClick={async (e) => {
                   e.preventDefault();
                   if (window.confirm('Czy na pewno chcesz usunąć tę notatkę?')) {
-                    await db.notes.delete(noteToEdit.id);
+                    await supabase.from('lifeos_notes').delete().eq('id', noteToEdit.id);
                     onClose();
                   }
                 }}
