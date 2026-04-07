@@ -29,9 +29,10 @@ export function useSupabaseQuery(tableName, filterFn = null, dependencies = []) 
 
     fetchData()
 
-    const channel = supabase.channel(`public:${tableName}_changes`)
+    const channelId = `hook-${tableName}-${Math.random().toString(36).slice(2, 9)}`
+    const channel = supabase.channel(channelId)
       .on('postgres_changes', { event: '*', schema: 'public', table: tableName }, () => {
-        fetchData() // Naive but robust strategy: refetch all on any change
+        fetchData()
       })
       .subscribe()
 
