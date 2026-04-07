@@ -22,6 +22,7 @@ export const Dashboard = () => {
   const [isAreasVisible, setIsAreasVisible] = useState(true)
   
   const areas = useLiveQuery(() => db.areas.toArray())
+  const allTasks = useLiveQuery(() => db.tasks.toArray()) || []
   
   const getTodayStr = () => {
     // Returns YYYY-MM-DD in local time
@@ -226,7 +227,9 @@ export const Dashboard = () => {
                   </div>
                   <div className="area-info">
                     <span className="area-name">{area.name}</span>
-                    <span className="area-stats">LifeOS Area</span>
+                    <span className="area-stats">
+                      {allTasks.filter(t => t.areaId === area.id).length} zadań
+                    </span>
                   </div>
                   <ChevronRight size={16} />
                 </Link>
