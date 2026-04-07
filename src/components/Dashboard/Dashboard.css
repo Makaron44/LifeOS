@@ -104,12 +104,16 @@
 
 .inbox-input-wrapper input {
   flex: 1;
+  min-width: 0; /* Zapobiega rozpychaniu przez długi placeholder */
   background: none;
   border: none;
   outline: none;
   font-size: 1.1rem;
   color: var(--text-primary);
   font-family: var(--font-main);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .inbox-input-wrapper input::placeholder {
@@ -128,8 +132,8 @@
   gap: 1.25rem;
   padding: 1.15rem;
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid transparent;
+  background: rgba(150, 150, 150, 0.05); /* Lepszy kontrast na obu motywach */
+  border: 1px solid var(--border); /* Subtelna ramka naprawiająca zlewanie w trybie jasnym */
   transition: var(--transition);
   cursor: pointer;
 }

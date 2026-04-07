@@ -74,12 +74,28 @@
 }
 
 .pin-btn {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 50%;
   color: var(--text-muted);
-  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
 .pin-btn:hover {
+  background-color: var(--bg-tertiary);
   transform: scale(1.1);
+  color: var(--text-primary);
+}
+
+.pin-btn.active {
+  color: var(--primary);
+  background-color: rgba(139, 92, 246, 0.1); /* Subtelne tło dla zapiętych */
 }
 
 .note-body {
