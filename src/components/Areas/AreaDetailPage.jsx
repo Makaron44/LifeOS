@@ -5,6 +5,7 @@ import { ChevronLeft, Plus, CheckCircle2, StickyNote, Calendar, X } from 'lucide
 import { TaskModal } from '../Tasks/TaskModal'
 import { EventModal } from '../Events/EventModal'
 import { NoteModal } from '../Notes/NoteModal'
+import './Areas.css'
 
 export const AreaDetailPage = () => {
   const { id } = useParams()
@@ -149,94 +150,6 @@ export const AreaDetailPage = () => {
           </div>
         </section>
       </div>
-
-      <style>{`
-        .area-dashboard-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1.5rem;
-          margin-top: 2rem;
-        }
-        .area-card {
-          background-color: var(--bg-secondary);
-          padding: 1.5rem;
-          border-radius: var(--radius-xl);
-          border: 1px solid var(--border);
-          box-shadow: var(--shadow-sm);
-        }
-        .count-badge {
-          background-color: var(--bg-tertiary);
-          padding: 2px 8px;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 600;
-          color: var(--text-secondary);
-        }
-        .area-list {
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          margin-top: 1rem;
-        }
-        .area-item {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          padding: 0.5rem;
-          border-radius: var(--radius-sm);
-          background-color: var(--bg-tertiary);
-        }
-        .item-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-        }
-        .item-title {
-          font-size: 0.9375rem;
-          color: var(--text-primary);
-        }
-        .item-date {
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--text-muted);
-          width: 40px;
-        }
-        .area-notes-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: 1rem;
-          margin-top: 1rem;
-        }
-        .area-note-card {
-          background-color: var(--bg-tertiary);
-          padding: 1rem;
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border);
-        }
-        .area-note-card h4 {
-          font-size: 0.875rem;
-          margin-bottom: 0.5rem;
-        }
-        .area-note-card p {
-          font-size: 0.75rem;
-          color: var(--text-secondary);
-        }
-        .empty-text {
-          color: var(--text-muted);
-          font-size: 0.875rem;
-          margin-top: 1rem;
-          font-style: italic;
-        }
-        @media (max-width: 1024px) {
-          .area-dashboard-grid {
-            grid-template-columns: 1fr;
-          }
-          .area-card {
-            grid-column: span 1 !important;
-          }
-        }
-      `}</style>
     </div>
   )
 }

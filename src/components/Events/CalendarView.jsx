@@ -42,7 +42,7 @@ export const CalendarView = ({ events, areas, onEdit, onAdd }) => {
 
   for (let d = 1; d <= totalDays; d++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-    const dayEvents = events?.filter(e => e.startDate.startsWith(dateStr))
+    const dayEvents = events?.filter(e => e.start_date?.startsWith(dateStr))
     const isToday = new Date().toISOString().split('T')[0] === dateStr
 
     const handleDayClick = () => {
@@ -61,7 +61,7 @@ export const CalendarView = ({ events, areas, onEdit, onAdd }) => {
             <div 
               key={event.id} 
               className="calendar-event-dot" 
-              style={{ backgroundColor: getAreaColor(event.areaId) }}
+              style={{ backgroundColor: getAreaColor(event.area_id) }}
               onClick={(e) => { e.stopPropagation(); onEdit(event); }}
               title={event.title}
             />

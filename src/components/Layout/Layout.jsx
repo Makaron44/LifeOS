@@ -8,7 +8,7 @@ export const Layout = ({ children, theme, toggleTheme }) => {
   return (
     <div className="app-container">
       <Sidebar />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="main-wrapper">
         <Header theme={theme} toggleTheme={toggleTheme} />
         <main className="main-content">
           {children}
