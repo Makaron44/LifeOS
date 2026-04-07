@@ -178,12 +178,12 @@
   left: 20px;
   right: 20px;
   height: 68px; 
-  background: rgba(10, 13, 24, 0.75); 
+  background: var(--nav-bg, rgba(10, 13, 24, 0.75)); 
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
   border: 1px solid var(--border);
   border-radius: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.02) inset;
+  box-shadow: var(--nav-shadow, 0 10px 40px rgba(0, 0, 0, 0.4)), 0 0 0 1px rgba(255,255,255,0.02) inset;
   justify-content: space-around;
   align-items: center;
   padding: 0 10px;

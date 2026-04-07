@@ -213,8 +213,8 @@
   }
 
   .tasks-filters {
-    margin: 0 -1.5rem; /* Full width bleed */
-    padding: 0 1.5rem 0.5rem;
+    margin: 0 -1rem; /* Bezpieczny margines zrównany z paddingiem */
+    padding: 0 1rem 0.5rem;
   }
 
   .task-card {

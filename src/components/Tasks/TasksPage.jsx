@@ -100,8 +100,8 @@ export const TasksPage = () => {
             </button>
           </div>
         </div>
-        <button className="primary-btn" onClick={() => setIsModalOpen(true)}>
-          <Plus size={18} /> Nowe zadanie
+        <button className="primary-btn icon-only-mobile" onClick={() => setIsModalOpen(true)}>
+          <Plus size={18} /> <span>Nowe zadanie</span>
         </button>
       </div>
 

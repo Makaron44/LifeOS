@@ -84,8 +84,8 @@ export const EventsPage = () => {
             </button>
           </div>
         </div>
-        <button className="primary-btn" onClick={() => openAddModal()}>
-          <Plus size={18} /> Nowe wydarzenie
+        <button className="primary-btn icon-only-mobile" onClick={() => openAddModal()}>
+          <Plus size={18} /> <span>Nowe wydarzenie</span>
         </button>
       </div>
 
